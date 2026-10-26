@@ -1,0 +1,280 @@
+Table proizvodjaci {
+  proizvodjac_id int [pk, increment]
+  naziv varchar(50) [unique, not null]
+  drzava varchar(60)
+}
+
+Table modeli_aviona {
+  model_id int [pk, increment]
+  proizvodjac_id int [not null]
+  naziv varchar(50) [not null]
+  broj_sedista int [not null]
+  domet_km int
+}
+
+Table avioni {
+  avion_id int [pk, increment]
+  registracija varchar(10) [unique, not null]
+  model_id int [not null]
+  godina_proizvodnje int
+  status varchar(20) [default: 'aktivan']
+}
+
+Table aerodromi {
+  aerodrom_id int [pk, increment]
+  naziv varchar(100) [not null]
+  iata_kod char(3) [unique, not null]
+  grad varchar(60) [not null]
+  drzava varchar(60) [not null]
+  vremenska_zona varchar(40)
+}
+
+Table letovi {
+  let_id int [pk, increment]
+  broj_leta varchar(10) [not null]
+  polazni_aerodrom_id int [not null]
+  odredisni_aerodrom_id int [not null]
+  avion_id int
+  planirani_polazak timestamp [not null]
+  planirani_dolazak timestamp [not null]
+  stvarni_polazak timestamp
+  stvarni_dolazak timestamp
+  status varchar(20) [default: 'zakazan']
+}
+
+Table putnici {
+  putnik_id int [pk, increment]
+  ime varchar(50) [not null]
+  prezime varchar(50) [not null]
+  broj_pasosa varchar(20) [unique, not null]
+  drzavljanstvo varchar(60)
+  datum_rodjenja date [not null]
+  email varchar(100)
+  telefon varchar(30)
+}
+
+Table rezervacije {
+  rezervacija_id int [pk, increment]
+  kod_rezervacije char(6) [unique, not null]
+  nosilac_putnik_id int [not null]
+  datum_rezervacije timestamp [default: `now()`]
+  status varchar(20) [default: 'aktivna']
+}
+
+Table karte {
+  karta_id int [pk, increment]
+  rezervacija_id int [not null]
+  let_id int [not null]
+  putnik_id int [not null]
+  klasa varchar(20) [not null]
+  sediste varchar(4)
+  cena decimal(10,2) [not null]
+}
+
+Table clanovi_posade {
+  clan_posade_id int [pk, increment]
+  zaposleni_id int [not null]
+  uloga varchar(30) [not null]
+  broj_licence varchar(30) [unique]
+  status varchar(20) [default: 'aktivan']
+}
+
+Table posade_letova {
+  let_id int [pk]
+  clan_posade_id int [pk]
+}
+
+Table prtljag {
+  prtljag_id int [pk, increment]
+  karta_id int [not null]
+  oznaka varchar(10) [unique, not null]
+  tip varchar(20) [not null]
+  tezina_kg decimal(5,2)
+  status varchar(20) [default: 'prijavljen']
+}
+
+Table placanja {
+  placanje_id int [pk, increment]
+  rezervacija_id int [not null]
+  iznos decimal(10,2) [not null]
+  valuta char(3) [not null, default: 'EUR']
+  nacin_placanja varchar(20) [not null]
+  datum_placanja timestamp [default: `now()`]
+  status varchar(20) [default: 'na cekanju']
+}
+
+Table terminali {
+  terminal_id int [pk, increment]
+  aerodrom_id int [not null]
+  naziv varchar(30) [not null]
+  opis varchar(100)
+}
+
+Table gejtovi {
+  gejt_id int [pk, increment]
+  terminal_id int [not null]
+  oznaka varchar(10) [not null]
+  status varchar(20) [default: 'slobodan']
+}
+
+Table letacka_posada {
+  clan_posade_id int [pk]
+  broj_licence varchar(30) [unique, not null]
+  rang varchar(30) [not null]
+  sati_naleta int [default: 0]
+  datum_isteka_licence date
+}
+
+Table kabinsko_osoblje {
+  clan_posade_id int [pk]
+  rang varchar(30) [not null]
+  jezici varchar(100)
+  sertifikat_prve_pomoci boolean [default: false]
+}
+
+Table kontrolni_tornjevi {
+  toranj_id int [pk, increment]
+  aerodrom_id int [not null]
+  naziv varchar(50) [not null]
+  radio_frekvencija varchar(15)
+  status varchar(20) [default: 'aktivan']
+}
+
+Table kontrolori_leta {
+  kontrolor_id int [pk, increment]
+  ime varchar(50) [not null]
+  prezime varchar(50) [not null]
+  broj_licence varchar(30) [unique, not null]
+  specijalnost varchar(30) [not null]
+  datum_zaposlenja date
+}
+
+Table smene_kontrolora {
+  smena_id int [pk, increment]
+  kontrolor_id int [not null]
+  toranj_id int [not null]
+  pocetak_smene timestamp [not null]
+  kraj_smene timestamp [not null]
+}
+
+Table piste {
+  pista_id int [pk, increment]
+  aerodrom_id int [not null]
+  oznaka varchar(10) [not null]
+  duzina_m int [not null]
+  povrsina varchar(20)
+  status varchar(20) [default: 'otvorena']
+}
+
+Table dozvole_leta {
+  dozvola_id int [pk, increment]
+  let_id int [not null]
+  kontrolor_id int [not null]
+  pista_id int [not null]
+  tip varchar(20) [not null]
+  vreme_izdavanja timestamp [default: `now()`]
+  status varchar(20) [default: 'odobrena']
+}
+
+Table ugovor_aerodrom{
+  ugovor_aerodrom_id int [pk, increment]
+  aerodrom_id int [not null]
+  tip_ugovora varchar(20) [not null]
+  trajanje_ugovora date [not null]
+  status varchar(20) [not null]
+  iznos int [not null]
+}
+
+Table ugovor_zaposleni {
+  ugovor_zaposleni_id int [pk, increment]
+  trajanje_ugovora date [not null]
+  datum_zaposlenja date
+  plata int [not null]
+  bonus int [not null]
+  beneficije varchar(20) [not null]
+}
+
+Table zaposleni{
+  zaposleni_id int [pk, increment]
+  ugovor_zaposleni_id int [not null]
+  ime varchar(20) [not null]
+  prezime varchar(20) [not null]
+  datum_rodjenja date [not null]
+  telefon varchar(20) [not null]
+  jmbg varchar(30) [not null]
+}
+
+Table odrzavanja_aviona {
+  odrzavanje_id int [pk, increment]
+  avion_id int [not null]
+  tip_odrzavanja_id int [not null]
+  trajanje datetime [not null]
+  ukupni_trosak decimal(10,2) [not null]
+  status varchar(20) [not null]
+}
+
+Table tipovi_odrzavanja {
+  tip_odrzavanja_id int [pk, increment]
+  naziv varchar(50) [not null]
+  opis varchar(200)
+}
+
+Table tehnicari {
+  tehnicar_id int [pk, increment]
+  zaposleni_id int [not null]
+  odrzavanje_id int
+  specijalnost varchar(50) [not null]
+  status varchar(20)
+}
+
+Table carter_letovi {
+  carter_id int [pk, increment]
+  let_id int [unique, not null]
+  planirani_broj_putnika int
+  ugovorena_cena decimal(12,2) [not null]
+  status varchar(20)
+}
+
+Ref: modeli_aviona.proizvodjac_id > proizvodjaci.proizvodjac_id
+Ref: avioni.model_id > modeli_aviona.model_id
+
+Ref: letovi.polazni_aerodrom_id > aerodromi.aerodrom_id
+Ref: letovi.odredisni_aerodrom_id > aerodromi.aerodrom_id
+Ref: letovi.avion_id > avioni.avion_id
+
+Ref: rezervacije.nosilac_putnik_id > putnici.putnik_id
+Ref: karte.rezervacija_id > rezervacije.rezervacija_id
+Ref: karte.let_id > letovi.let_id
+Ref: karte.putnik_id > putnici.putnik_id
+
+Ref: posade_letova.let_id > letovi.let_id
+Ref: posade_letova.clan_posade_id > clanovi_posade.clan_posade_id
+
+Ref: prtljag.karta_id > karte.karta_id
+
+Ref: placanja.rezervacija_id > rezervacije.rezervacija_id
+
+Ref: terminali.aerodrom_id > aerodromi.aerodrom_id
+Ref: gejtovi.terminal_id > terminali.terminal_id
+
+Ref: letacka_posada.clan_posade_id - clanovi_posade.clan_posade_id
+Ref: kabinsko_osoblje.clan_posade_id - clanovi_posade.clan_posade_id
+
+Ref: kontrolni_tornjevi.aerodrom_id > aerodromi.aerodrom_id
+Ref: piste.aerodrom_id > aerodromi.aerodrom_id
+Ref: smene_kontrolora.kontrolor_id > kontrolori_leta.kontrolor_id
+Ref: smene_kontrolora.toranj_id > kontrolni_tornjevi.toranj_id
+Ref: dozvole_leta.let_id > letovi.let_id
+Ref: dozvole_leta.kontrolor_id > kontrolori_leta.kontrolor_id
+Ref: dozvole_leta.pista_id > piste.pista_id
+Ref: ugovor_aerodrom.aerodrom_id - aerodromi.aerodrom_id
+Ref: zaposleni.zaposleni_id - clanovi_posade.zaposleni_id
+Ref: zaposleni.ugovor_zaposleni_id - ugovor_zaposleni.ugovor_zaposleni_id
+Ref: odrzavanja_aviona.tip_odrzavanja_id > tipovi_odrzavanja.tip_odrzavanja_id
+Ref: odrzavanja_aviona.avion_id > avioni.avion_id
+Ref: tehnicari.zaposleni_id - zaposleni.zaposleni_id
+Ref: odrzavanja_aviona.odrzavanje_id < tehnicari.odrzavanje_id
+Ref: carter_letovi.let_id - letovi.let_id
+
+//Carter letovi, zaposleni i clanovi posade veza, ugovor zaposleni kako da povezemo
+
